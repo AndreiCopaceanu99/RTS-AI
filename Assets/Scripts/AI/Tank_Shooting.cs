@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Turret_Controll : MonoBehaviour
+public class Tank_Shooting : MonoBehaviour
 {
     public List<GameObject> Enemies = new List<GameObject>();
 
@@ -11,8 +11,7 @@ public class Turret_Controll : MonoBehaviour
     [SerializeField]
     Transform Closest_Enemy_Placeholder;
 
-    public float Range = 2750f;
-    SphereCollider collider;
+    public Transform Barrels;
 
     Fuzzy_Coordination Fuzzy_AI;
 
@@ -26,23 +25,17 @@ public class Turret_Controll : MonoBehaviour
     [SerializeField]
     public int Bullet_Damage;
 
-    private void OnValidate()
-    {
-        collider = GetComponent<SphereCollider>();
-        collider.radius = Range;
-        Fuzzy_AI = GetComponentInParent<Fuzzy_Coordination>();
-    }
-
+    // Start is called before the first frame update
     void Start()
     {
+        Fuzzy_AI = GetComponentInParent<Fuzzy_Coordination>();
+        Barrels = transform.Find("Gun_elevators");
         Closest_Enemy = Closest_Enemy_Placeholder;
-        Closest_Enemy.position = Vector3.forward;
-        collider = GetComponent<SphereCollider>();
-        collider.radius = Range;
         InvokeRepeating("Update_Closest_Enemy", 1f, 1f);
         InvokeRepeating("Shoot", 1f, 2f);
     }
 
+    // Update is called once per frame
     void Update()
     {
         for (int i = 0; i < Enemies.Count; i++)
@@ -86,6 +79,13 @@ public class Turret_Controll : MonoBehaviour
         if (Enemies.Count == 0)
         {
             Closest_Enemy = Closest_Enemy_Placeholder;
+        }
+
+        Barrels.LookAt(Closest_Enemy);
+
+        if (Closest_Enemy != Closest_Enemy_Placeholder)
+        {
+            transform.rotation = new Quaternion(0, Barrels.rotation.y, 0, Barrels.rotation.w);
         }
     }
 
